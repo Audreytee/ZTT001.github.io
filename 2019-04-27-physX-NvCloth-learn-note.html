@@ -79,18 +79,21 @@
 
 
 
-<meta name="description" content="#物理">
+<meta name="description" content="基于PhysX的Cloth学习笔记用户指南角色服装的逼真运动极大地改善了玩家体验。 PhysX 3布料功能是一种完整的高性能解决方案，可用于模拟角色服装。 它提供高精度和稳定性的局部空间模拟，减少拉伸的新技术，与各种形状的碰撞，以及颗粒自碰撞和相互碰撞，以避免布料穿透自身或其他布料实例。 可以将仿真卸载到支持CUDA的GPU，以获得更好的性能，或者以高于CPU能够处理的分辨率运行资产。 PhysX">
 <meta name="keywords" content="hexo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="physX NvCloth learn note">
+<meta property="og:title" content="physX Cloth learn note">
 <meta property="og:url" content="https://ztt001.github.io/2019-04-27-physX-NvCloth-learn-note.html">
 <meta property="og:site_name" content="smilefish">
-<meta property="og:description" content="#物理">
+<meta property="og:description" content="基于PhysX的Cloth学习笔记用户指南角色服装的逼真运动极大地改善了玩家体验。 PhysX 3布料功能是一种完整的高性能解决方案，可用于模拟角色服装。 它提供高精度和稳定性的局部空间模拟，减少拉伸的新技术，与各种形状的碰撞，以及颗粒自碰撞和相互碰撞，以避免布料穿透自身或其他布料实例。 可以将仿真卸载到支持CUDA的GPU，以获得更好的性能，或者以高于CPU能够处理的分辨率运行资产。 PhysX">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-27T08:57:18.052Z">
+<meta property="og:image" content="c:/Users/ztt/Pictures/Camera%20Roll/phyX1.PNG">
+<meta property="og:image" content="c:/Users/ztt/Pictures/Camera%20Roll/phyX2.PNG">
+<meta property="og:updated_time" content="2019-04-28T08:24:58.670Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="physX NvCloth learn note">
-<meta name="twitter:description" content="#物理">
+<meta name="twitter:title" content="physX Cloth learn note">
+<meta name="twitter:description" content="基于PhysX的Cloth学习笔记用户指南角色服装的逼真运动极大地改善了玩家体验。 PhysX 3布料功能是一种完整的高性能解决方案，可用于模拟角色服装。 它提供高精度和稳定性的局部空间模拟，减少拉伸的新技术，与各种形状的碰撞，以及颗粒自碰撞和相互碰撞，以避免布料穿透自身或其他布料实例。 可以将仿真卸载到支持CUDA的GPU，以获得更好的性能，或者以高于CPU能够处理的分辨率运行资产。 PhysX">
+<meta name="twitter:image" content="c:/Users/ztt/Pictures/Camera%20Roll/phyX1.PNG">
 
 
 
@@ -126,7 +129,7 @@
 
 
 
-  <title>physX NvCloth learn note | smilefish</title>
+  <title>physX Cloth learn note | smilefish</title>
   
 
 
@@ -312,7 +315,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">physX NvCloth learn note</h1>
+          <h1 class="post-title" itemprop="name headline">physX Cloth learn note</h1>
         
 
         <div class="post-meta">
@@ -362,7 +365,57 @@
       
 
       
-        <p>#物理</p>
+        <h1 id="基于PhysX的Cloth学习笔记"><a href="#基于PhysX的Cloth学习笔记" class="headerlink" title="基于PhysX的Cloth学习笔记"></a>基于PhysX的Cloth学习笔记</h1><h2 id="用户指南"><a href="#用户指南" class="headerlink" title="用户指南"></a>用户指南</h2><pre><code>角色服装的逼真运动极大地改善了玩家体验。 PhysX 3布料功能是一种完整的高性能解决方案，可用于模拟角色服装。 它提供高精度和稳定性的局部空间模拟，减少拉伸的新技术，与各种形状的碰撞，以及颗粒自碰撞和相互碰撞，以避免布料穿透自身或其他布料实例。 可以将仿真卸载到支持CUDA的GPU，以获得更好的性能，或者以高于CPU能够处理的分辨率运行资产。
+</code></pre><p>PhysX 3布料是PhysX 2变形的重写，专为模拟字符布料而定制。 软体，撕裂和双向交互已被删除，而布料模拟的行为和性能已得到改善。</p>
+<h3 id="simulation-algorithm"><a href="#simulation-algorithm" class="headerlink" title="simulation algorithm"></a>simulation algorithm</h3><p>对于一个PhysX模拟框架，布料解算器运行多次迭代。 迭代次数由求解器频率参数和模拟帧时间确定。 每次迭代都会集成粒子位置，解决约束，并执行角色和自碰撞。 在场景中的所有布料实例逐步前进后，每帧执行一次布料相互碰撞。 从用户指定的每帧值开始，每次迭代内插局部帧，运动约束和碰撞形状。</p>
+<h4 id="Solver-Frequency"><a href="#Solver-Frequency" class="headerlink" title="Solver Frequency"></a>Solver Frequency</h4><p>迭代时间步长与求解器迭代次数成反比：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloth.setSolverFrequency(<span class="number">240.0f</span>);</span><br></pre></td></tr></table></figure></p>
+<p>求解器频率指定为每秒迭代次数。 求解器频率值240对应于每帧以每秒60帧的4次迭代。 通常，如果使用更高的求解器频率值，模拟将变得更准确。 然而，仿真时间与求解器频率大致呈线性增长。 通常，该值介于120和300之间。<br>使用模拟频率和模拟时间步长导出每帧的迭代次数。 PhysX尝试通过在位置积分期间和应用阻尼参数（如约束刚度）时考虑时间步长的变化来仔细处理可变时间步长。 虽然这减少了由于时变步长变化引起的可能的抖动伪像，但通常不建议使用可变时间步长。</p>
+<h4 id="Particle-Integration"><a href="#Particle-Integration" class="headerlink" title="Particle Integration"></a>Particle Integration</h4><p>布料迭代的第一步是根据其当前位置，速度和外部加速度预测新的粒子位置。 当粒子状态由当前位置和最后一次迭代之前的位置组成时，局部空间中的粒子速度可以通过将位置delta除以前一次迭代的delta时间来计算。</p>
+<h4 id="Local-Space-Simulation-and-Inertia-Scale"><a href="#Local-Space-Simulation-and-Inertia-Scale" class="headerlink" title="Local Space Simulation and Inertia Scale"></a>Local Space Simulation and Inertia Scale</h4><p>每个PxCloth actor都有一个转换，可以将粒子从其局部空间转换为世界空间位置。 例如：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloth.setGlobalPose(PxTransform(PxVec3(<span class="number">1.0f</span>, <span class="number">0.0f</span>, <span class="number">0.0f</span>));</span><br></pre></td></tr></table></figure></p>
+<p>将布料的世界空间位置改为（1,0,0).现在将它与此函数进行比较：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloth.setTargetPose(PxTransform(PxVec3(<span class="number">1.0f</span>, <span class="number">0.0f</span>, <span class="number">0.0f</span>));</span><br></pre></td></tr></table></figure></p>
+<p>，这也将布料的位置改变到同一个地方。 那有什么不同？<br>PxCloth :: setGlobalPose（）仅移动布料，但PxCloth :: setTargetPose（）也会因位置变化而产生加速度（惯性）。 可以使用惯性刻度来控制局部框架加速度影响布料颗粒的量，例如，将一半的局部框架加速度赋予颗粒使用：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloth.setInertiaScale(<span class="number">0.5f</span>);</span><br></pre></td></tr></table></figure></p>
+<p>通过PxCloth :: set * InertiaScale（）方法族，每个平移和旋转轴可以单独缩放惯性效果。 限制局部帧加速度影响粒子的量对于快速移动的角色尤其有用。</p>
+<h4 id="Constraints"><a href="#Constraints" class="headerlink" title="Constraints"></a>Constraints</h4><p>在粒子位置被整合之后，解决一组不同的约束以模拟拉伸，剪切和弯曲力，以及将粒子运动限制在特定区域内。  </p>
+<h4 id="Distance-Constraints"><a href="#Distance-Constraints" class="headerlink" title="Distance Constraints"></a>Distance Constraints</h4><p>布料解决方案最重要的作用之一是保持颗粒之间的距离，使布料不会拉伸。 这是通过在粒子对之间应用距离约束来实现的。 颗粒连接的方式会影响布料的拉伸，压缩，剪切，旋转和弯曲。 PhysX将距离约束分为4种类型（请参阅PxClothFabricPhaseType），每种类型都可以配置不同的刚度参数。</p>
+<p>Below is an example of stiffness settings for each constraint type:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cloth.setStretchConfig(PxClothFabricPhaseType::eVERTICAL, PxClothStretchConfig(<span class="number">1.0f</span>));</span><br><span class="line">cloth.setStretchConfig(PxClothFabricPhaseType::eHORIZONTAL, PxClothStretchConfig(<span class="number">0.9f</span>));</span><br><span class="line">cloth.setStretchConfig(PxClothFabricPhaseType::eSHEARING, PxClothStretchConfig(<span class="number">0.75f</span>));</span><br><span class="line">cloth.setStretchConfig(PxClothFabricPhaseType::eBENDING, PxClothStretchConfig(<span class="number">0.5f</span>));</span><br></pre></td></tr></table></figure></p>
+<p>有时希望不严格执行距离约束。 刚度参数仅允许每次迭代校正边缘长度残差的一部分，例如以减小弯曲约束的强度。 单独的较低刚度可用于仅适度拉伸或压缩的边缘。 例如，当角色采取大步时，可以使连衣裙伸展，但在旋转时仍能正常行动。<br>以下代码设置垂直约束，使得当边缘被压缩超过60％或拉伸超过120％时，将使用0.8的刚度。 否则将使用0.4 = 0.8 * 0.5的刚度：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PxClothStretchConfig stretchConfig;</span><br><span class="line">stretchConfig.stiffness = <span class="number">0.8f</span>;</span><br><span class="line">stretchConfig.stiffnessMultiplier = <span class="number">0.5f</span>;</span><br><span class="line">stretchConfig.compressionLimit = <span class="number">0.6f</span>;</span><br><span class="line">stretchConfig.stretchLimit = <span class="number">1.2f</span>;</span><br><span class="line">cloth.setStretchConfig(PxClothFabricPhaseType::eVERTICAL, stretchConfig);</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>Note ： Stretch settings for horizontal and vertical directions are specified separately. This can be used to handle stretching along the gravity (vertical) direction differently.</p>
+</blockquote>
+<h4 id="Tether-Constraints"><a href="#Tether-Constraints" class="headerlink" title="Tether Constraints"></a>Tether Constraints</h4><p>距离约束每次迭代仅解决一次而不完全收敛。这种近似的最明显的神器是布料变得有弹性。增加求解器频率会减少拉伸，但会导致模拟时间增加。</p>
+<p>PhysX 3.3引入了系绳约束作为解决方案，以避免在重力或快速运动下的伸展性。系绳约束通过限制粒子可以远离其锚定粒子的距离来防止拉伸。此约束为求解器添加了非常少量的计算，因此它比增加迭代次数更有效。</p>
+<p>当一些PxClothMeshDesc :: invMasses值设置为零时，炊具会自动生成系绳约束，告诉炊具相应的粒子是非模拟锚粒子，其位置仅由用户提供。在创建结构后更改反向质量不会影响将哪些锚定粒子用于系绳约束。</p>
+<h4 id="Motion-Constraints"><a href="#Motion-Constraints" class="headerlink" title="Motion Constraints"></a>Motion Constraints</h4><p>可以将点完全约束到具有零反质量的用户指定位置。 但是，有时需要将一个点限制在动画（用户指定）位置周围的小区域内。 这允许通过模拟生成小细节，同时抑制与期望位置的任何过度偏差。</p>
+<p>运动约束锁定每个粒子在球体内的运动。 例如，动画系统可以绘制布料的整体运动，而细节比例细节由布料模拟处理。</p>
+<p>PxClothParticleMotionConstraint结构保存每个粒子的球体位置和半径，并且运动约束可以指定如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PxClothParticleMotionConstraints motionConstraints[] = &#123;</span><br><span class="line">    PxClothParticleMotionConstraints(PxVec3(<span class="number">0.0f</span>, <span class="number">0.0f</span>, <span class="number">0.0f</span>), <span class="number">0.0f</span>),</span><br><span class="line">    PxClothParticleMotionConstraints(PxVec3(<span class="number">0.0f</span>, <span class="number">1.0f</span>, <span class="number">0.0f</span>), <span class="number">1.0f</span>),</span><br><span class="line">    PxClothParticleMotionConstraints(PxVec3(<span class="number">1.0f</span>, <span class="number">0.0f</span>, <span class="number">0.0f</span>), <span class="number">1.0f</span>),</span><br><span class="line">    PxClothParticleMotionConstraints(PxVec3(<span class="number">1.0f</span>, <span class="number">1.0f</span>, <span class="number">0.0f</span>), FLT_MAX)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">cloth.setMotionConstraints(motionConstraints)</span><br></pre></td></tr></table></figure></p>
+<p>如果球体半径变为零或负，则相应的粒子将锁定在球体中心，并且反粒子质量将设置为零以用于下一次迭代。 在上面的示例中，第一个粒子将完全锁定到约束位置，而第二个和第三个粒子将保持在球体半径内。 最后一个粒子不受约束。</p>
+<p>运动约束球半径可以被全局缩放和偏置，例如以在模拟和动画状态之间转换。 有关详细信息，请参阅PxClothMotionConstraintConfig。</p>
+<h4 id="Separation-Constraints"><a href="#Separation-Constraints" class="headerlink" title="Separation Constraints"></a>Separation Constraints</h4><p>分离约束与运动约束完全相反，迫使粒子停留在球体之外。 当粒子运动受到运动约束（例如臂周围的套筒）的适度约束时，可以使用分离约束来比单独使用胶囊更准确地表示角色的碰撞形状。 例如，通过将半径设置为从球体中心到角色表面的距离，可以将分离约束放置在角色内部。</p>
+<p>请参阅PxClothParticleSeperationConstraint和PxCloth :: setSeparationConstraints（）。</p>
+<h4 id="Collision-Detection"><a href="#Collision-Detection" class="headerlink" title="Collision Detection"></a>Collision Detection</h4><p>每个布料对象都支持与球体，胶囊，平面，凸面（平面组）和三角形的碰撞。默认情况下，这些形状都与主PhysX刚体场景分开处理，但是可以使用PxClothFlag :: eSCENE_COLLISION标志启用与其他PxScene actor的碰撞。</p>
+<p>在模拟场景之前，在下一帧的本地坐标中指定碰撞形状。使用从帧的开始和结束处的值插值的形状位置，执行独立且完整的碰撞阶段作为每个求解器迭代的一部分。球体和胶囊碰撞支持连续碰撞检测，并使用加速结构在碰撞管道的早期剔除远处的粒子。因此，球体和胶囊是模拟字符形状的首选，而凸起和三角形应该只是谨慎使用。</p>
+<p>球体定义为中心和半径。请注意，特别允许半径在帧与帧之间变化。每块布的球体总数限制在32个。</p>
+<p>胶囊由球体阵列中的一对指数限定，并且每个球体可具有不同的半径，从而形成锥形胶囊。球体可以在多个胶囊之间共享，这可以用于模拟角色（由胶囊组成的上腿和下腿可以在膝盖处共享球体）。分享球体也使模拟更有效和更强大，因此非常鼓励。<br><img src="C:\Users\ztt\Pictures\Camera Roll\phyX1.PNG" alt=""><br><img src="C:\Users\ztt\Pictures\Camera Roll\phyX2.PNG" alt=""><br>平面由它们的法线和距原点确定。 它们不会被认为是碰撞，除非它们以凸形状引用。 使用掩码的凸面参考平面，其中每个位对应于平面阵列中的条目。 每块布限制为32架。</p>
+<p>三角形碰撞器被定义为逆时针缠绕顺序的顶点三元组。 三角形应在布料附近形成一个封闭的补丁，以实现一致的碰撞处理（每个粒子碰撞其最接近的三角形，扩展到无限平面）。</p>
+<p>平面和三角形的顺序应保持不变（除了通过PxCloth :: removeCollisionPlane / Triangle（）方法移除它们），因为它们的位置在模拟帧之间进行插值。</p>
+<h4 id="Continuous-Collision-Detection"><a href="#Continuous-Collision-Detection" class="headerlink" title="Continuous Collision Detection"></a>Continuous Collision Detection</h4><p>除了在每次迭代结束时解析形状内的粒子的离散碰撞，还支持连续碰撞检测，并且可以通过调用来启用：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Enable continuous collision detection</span></span><br><span class="line">cloth.setClothFlag(PxClothFlag::eSWEPT_CONTACT, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure></p>
+<p>连续碰撞的计算成本比离散碰撞大2倍，但有必要检测快速移动物体之间的碰撞。 连续碰撞分析颗粒和胶囊的轨迹以确定何时发生接触。 在第一次接触之后，粒子随着形状移动直到迭代结束。</p>
+<blockquote>
+<p>Note : The SIMD collision path handles sets of 4 particles in parallel. It is therefore advantageous to spatially group cloth particles so that they are likely to collide with the same set of shapes.</p>
+</blockquote>
+<h3 id="Virtual-Particle-Collision"><a href="#Virtual-Particle-Collision" class="headerlink" title="Virtual Particle Collision"></a>Virtual Particle Collision</h3><p>虚拟粒子提供了一种改善布料碰撞的方法，而不会增加布料的分辨率 它们被称为“虚拟”粒子，因为它们仅在碰撞处理阶段存在，并且没有像常规粒子那样明确地存储它们的位置，速度或质量，它们可以被认为是在碰撞表面上提供额外的样本。</p>
+<p>在碰撞处理期间，使用重心插值从三个正常粒子创建每个虚拟粒子。 然后像常规粒子一样测试离散碰撞，并使用反向插值将碰撞脉冲重新分配回原始粒子。</p>
+<p>“添加虚拟粒子”一节介绍了使用此功能的必要步骤。</p>
+<h4 id="Friction-and-Mass-Scaling"><a href="#Friction-and-Mass-Scaling" class="headerlink" title="Friction and Mass Scaling"></a>Friction and Mass Scaling</h4><p>可以启用库仑摩擦，并通过将摩擦系数设置在0和1之间来应用于粒子和虚拟粒子碰撞：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloth.setFrictionCoefficient(<span class="number">0.5f</span>);</span><br></pre></td></tr></table></figure></p>
+<p>此外，还可以选择人为地增加碰撞粒子的质量，这种质量的暂时增加可以帮助减少沿着在碰撞形状上被紧紧拉动的边缘的拉伸。 该效果由粒子的相对法向速度和碰撞形状以及用户定义的系数确定。 值20是合理的起点，但鼓励用户尝试使用此值：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloth.setCollisionMassScale(<span class="number">20.0f</span>);</span><br></pre></td></tr></table></figure></p>
+<h4 id="Self-Collision-of-a-Single-Cloth-Actor"><a href="#Self-Collision-of-a-Single-Cloth-Actor" class="headerlink" title="Self-Collision of a Single Cloth Actor"></a>Self-Collision of a Single Cloth Actor</h4><p>布料演员的粒子可以相互碰撞。 要启用此自碰撞行为，应将自碰撞距离和自碰撞刚度设置为非零值：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cloth.setSelfCollisionDistance(<span class="number">0.1f</span>);</span><br><span class="line">cloth.setSelfCollisionStiffness(<span class="number">1.0f</span>);</span><br></pre></td></tr></table></figure></p>
+<p>自碰撞距离定义了每个粒子周围球体的直径，并且求解器确保这些球体在模拟过程中不会重叠。 自碰撞刚度定义了分离脉冲应该有多强。</p>
+<p>自碰撞距离应小于其余配置中两个粒子之间的最小距离。 如果距离较大，则自碰撞可能违反某些距离约束并导致抖动。</p>
+<p>当无法避免这种配置时（例如由于不规则的输入网格等），可以分配额外的休息位置：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloth.setRestPositions(restPositions);</span><br></pre></td></tr></table></figure></p>
+<p>如果两个粒子的静止位置比碰撞距离更近，则忽略两个粒子之间的碰撞。 但是，较大的碰撞距离和使用静止位置会显着降低自碰撞的性能，因此应谨慎使用。</p>
+<p>通过将自碰撞限制为所有粒子的子集，可以提高高分辨率布料实例的自碰撞性能（请参阅PxCloth :: setSelfCollisionIndices（））。</p>
+<h4 id="Inter-Collision-between-Multiple-Cloth-Actors"><a href="#Inter-Collision-between-Multiple-Cloth-Actors" class="headerlink" title="Inter-Collision between Multiple Cloth Actors"></a>Inter-Collision between Multiple Cloth Actors</h4><p>当启用相互碰撞时，可以使不同的布料演员彼此交互。 为场景的所有布料实例设置了相互碰撞的参数：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scene.setInterCollisionDistance(<span class="number">0.5f</span>);</span><br><span class="line">scene.setInterCollisionStiffness(<span class="number">1.0f</span>);</span><br></pre></td></tr></table></figure></p>
+<p>距离和刚度值的定义与自碰撞相同。 指定用于自碰撞的粒子子集的布料实例使用相同的子集进行交互。</p>
 
       
     </div>
@@ -383,7 +436,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://ztt001.github.io/2019-04-27-physX-NvCloth-learn-note.html" title="physX NvCloth learn note">https://ztt001.github.io/2019-04-27-physX-NvCloth-learn-note.html</a>
+    <a href="https://ztt001.github.io/2019-04-27-physX-NvCloth-learn-note.html" title="physX Cloth learn note">https://ztt001.github.io/2019-04-27-physX-NvCloth-learn-note.html</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>
@@ -471,8 +524,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -532,6 +594,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基于PhysX的Cloth学习笔记"><span class="nav-number">1.</span> <span class="nav-text">基于PhysX的Cloth学习笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用户指南"><span class="nav-number">1.1.</span> <span class="nav-text">用户指南</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#simulation-algorithm"><span class="nav-number">1.1.1.</span> <span class="nav-text">simulation algorithm</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Solver-Frequency"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">Solver Frequency</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Particle-Integration"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">Particle Integration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Local-Space-Simulation-and-Inertia-Scale"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">Local Space Simulation and Inertia Scale</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Constraints"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">Constraints</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Distance-Constraints"><span class="nav-number">1.1.1.5.</span> <span class="nav-text">Distance Constraints</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Tether-Constraints"><span class="nav-number">1.1.1.6.</span> <span class="nav-text">Tether Constraints</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Motion-Constraints"><span class="nav-number">1.1.1.7.</span> <span class="nav-text">Motion Constraints</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Separation-Constraints"><span class="nav-number">1.1.1.8.</span> <span class="nav-text">Separation Constraints</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Collision-Detection"><span class="nav-number">1.1.1.9.</span> <span class="nav-text">Collision Detection</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Continuous-Collision-Detection"><span class="nav-number">1.1.1.10.</span> <span class="nav-text">Continuous Collision Detection</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Virtual-Particle-Collision"><span class="nav-number">1.1.2.</span> <span class="nav-text">Virtual Particle Collision</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Friction-and-Mass-Scaling"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">Friction and Mass Scaling</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Self-Collision-of-a-Single-Cloth-Actor"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">Self-Collision of a Single Cloth Actor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Inter-Collision-between-Multiple-Cloth-Actors"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">Inter-Collision between Multiple Cloth Actors</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
